@@ -10,9 +10,19 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.1",
+    "@splinetool/react-spline": "^4.0.0",
+    "@splinetool/runtime": "^1.9.37",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.456.0",
+    "next": "14.2.17",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.17"
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.1.0",
