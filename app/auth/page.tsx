@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import Link from 'next/link'
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -78,6 +79,9 @@ export default function AuthPage() {
           </TabsContent>
         </Tabs>
       </Card>
+        <Link href="/" passHref>
+            Go back
+        </Link>
     </div>
   )
 }
