@@ -14,6 +14,13 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		fontFamily: {
+			geistMono: ['GeistMonoVF', 'monospace'],
+			geist: ['GeistVF', 'sans-serif'],
+		},
+		animation: {
+			aurora: "aurora 60s linear infinite",
+		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -61,7 +68,17 @@ const config: Config = {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		}
-  	}
+  	},
+	keyframes :{
+		aurora: {
+			from: {
+				backgroundPosition: "50% 50%, 50% 50%",
+			},
+			to: {
+				backgroundPosition: "350% 50%, 350% 50%",
+			},
+		},
+	}
   },
   plugins: [
 	require("tailwindcss-animate"),

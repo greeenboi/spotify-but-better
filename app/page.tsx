@@ -1,27 +1,39 @@
-import { Button } from '@/components/ui/button';
-import { TextHoverEffect } from '@/components/ui/text-hover-effect';
-import Spline from '@splinetool/react-spline/next';
-import Link from 'next/link';
+"use client";
 
+import { AuroraBackground } from '@/components/ui/aurora-background'
+import { motion } from "framer-motion";
+import { Button } from '@/components/ui/button'
+import { Link } from "react-transition-progress/next";
+import { TextHoverEffect } from '@/components/ui/text-hover-effect'
+import { IconPlayerPlay } from '@tabler/icons-react';
+import TestLoader from './lib/test-loader';
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4 relative">
-      <Spline
-        scene="https://prod.spline.design/C1L42urfUVHCptXq/scene.splinecode"
-        className='w-full h-full overflow-clip z-0 absolute' 
-      /> 
-      <div className='w-full -top-0 bottom-0 absolute z-10 backdrop-blur-sm  rounded-md'>
-        <TextHoverEffect text="SONDER"  />
-      </div>
-      <div className="min-h-24 w-full flex justify-center items-center space-y-8 text-center absolute z-10 bottom-0 backdrop-blur-2xl bg-slate-800 bg-opacity-15">
-        <Button asChild className=" text-white">
-          <Link href="/auth">Get Started</Link>
-        </Button>
-      </div>
-    </main>
+    <AuroraBackground>
+      <motion.div
+        initial={{ opacity: 0.0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{
+          delay: 0.3,
+          duration: 0.8,
+          ease: "easeInOut",
+        }}
+        className="relative flex flex-col gap-4 items-center justify-center px-4"
+      >
+        <TextHoverEffect text='SONDER' automatic duration={5}/>
+        <section className='grid grid-cols-2 gap-8'>
+          <div className="col-span-2 font-extralight font-geistMono text-base max-w-xl text-center md:text-2xl text-neutral-200 text-opacity-50 py-4">
+            Music is the strongest form of magic
+          </div>
+          <Button variant="default" className='font-geist' asChild>
+            <Link href="/player">
+              <IconPlayerPlay /> Get Started
+            </Link>
+          </Button>
+          <TestLoader />
+        </section>
+      </motion.div>
+    </AuroraBackground>
   )
 }
-
-
-

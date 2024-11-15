@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { ProgressBar, ProgressBarProvider } from "react-transition-progress";
 import localFont from "next/font/local";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,7 +30,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ProgressBarProvider>
+            {children}
+            <ProgressBar className=" bg-primary fixed h-2 bottom-1 z-50" />
+          </ProgressBarProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
