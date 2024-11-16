@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { PlayCircle, PauseCircle, Volume2, VolumeX, Eye, EyeOff, StepBack, StepForward, Repeat } from 'lucide-react';
+import { PlayCircle, PauseCircle, Volume2, VolumeX, StepBack, StepForward, Repeat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
@@ -14,8 +13,8 @@ const DEFAULT_CONFIG: VisualizerConfig = {
   minHeight: 2,
   maxHeight: 100,
   colors: {
-    start: '#1C1917',
-    end: '#22C55E',
+    start: '#13EF93',
+    end: '#149AFB',
   },
 };
 
@@ -42,9 +41,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const [isHovering, setIsHovering] = useState(false);
   const [isVolumeVisible, setIsVolumeVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [showVisualizer, setShowVisualizer] = useState(false);
+  const [showVisualizer ] = useState(false);
 
-  // const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -53,61 +52,33 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const progressUpdateInterval = useRef<NodeJS.Timeout | null>(null);
   const playerRef = useRef<Player | null>(null);
 
-  const cleanupAudioContext = useCallback(() => {
-    console.log('Cleaning up audio context connections');
-    if (sourceRef.current) {
-      sourceRef.current.disconnect();
-      sourceRef.current = null;
-    }
-    if (analyserRef.current) {
-      analyserRef.current.disconnect();
-    }
-  }, []);
-
   const initializeAudioContext = useCallback(async () => {
-    console.log('Initializing audio context');
-    try {
-      // Clean up previous connections first
-      cleanupAudioContext();
+    if (!audioRef.current) return;
 
+    try {
       if (!audioContextRef.current) {
-        console.log('Creating new AudioContext');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
 
       if (audioContextRef.current.state === 'suspended') {
-        console.log('Resuming suspended AudioContext');
         await audioContextRef.current.resume();
       }
 
       if (!analyserRef.current) {
-        console.log('Creating new AnalyserNode');
         analyserRef.current = audioContextRef.current.createAnalyser();
         analyserRef.current.fftSize = 256;
       }
 
-      // Wait for a short moment to ensure Howl has initialized the audio node
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      if (playerRef.current?.playlist[audioState.currentTrack]?.howl) {
-        console.log('Connecting Howler node to analyzer');
-        const howl = playerRef.current.playlist[audioState.currentTrack].howl;
-        const nodeToConnect = howl._sounds[0]?._node;
-
-        if (nodeToConnect) {
-          console.log('Creating and connecting source');
-          sourceRef.current = audioContextRef.current.createMediaElementSource(nodeToConnect);
-          sourceRef.current.connect(analyserRef.current);
-          analyserRef.current.connect(audioContextRef.current.destination);
-        } else {
-          console.log('No audio node available yet');
-        }
+      if (!sourceRef.current) {
+        sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+        sourceRef.current.connect(analyserRef.current);
+        analyserRef.current.connect(audioContextRef.current.destination);
       }
     } catch (error) {
-      console.error('Audio context initialization error:', error);
       onError?.(error as Error);
     }
-  }, [audioState.currentTrack, onError, cleanupAudioContext]);
+  }, [onError]);
 
   const initializePlayer = useCallback(() => {
     if (!playerRef.current) {
@@ -160,6 +131,52 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   // Initialize audio element and event listeners
   useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    // Update to use current playlist item's file
+    if (playlist[audioState.currentTrack]) {
+      audio.src = playlist[audioState.currentTrack].file;
+    }
+
+    const handleLoadedMetadata = () => {
+      setAudioState(prev => ({
+        ...prev,
+        duration: audio.duration
+      }));
+    };
+
+    const handleTimeUpdate = () => {
+      if (!isDragging) {
+        setAudioState(prev => ({
+          ...prev,
+          currentTime: audio.currentTime
+        }));
+      }
+    };
+
+    const handleEnded = () => {
+      setAudioState(prev => ({
+        ...prev,
+        isPlaying: false,
+        currentTime: 0
+      }));
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+
+    const handleError = (e: Event) => {
+      const error = (e as ErrorEvent).error || new Error('Audio loading failed');
+      onError?.(error);
+    };
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
+
+    // Initialize audio context on first user interaction
     const initOnInteraction = async () => {
       await initializeAudioContext();
       document.removeEventListener('click', initOnInteraction);
@@ -168,7 +185,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     document.addEventListener('click', initOnInteraction);
 
     return () => {
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
       document.removeEventListener('click', initOnInteraction);
+      
       if (progressUpdateInterval.current) {
         clearInterval(progressUpdateInterval.current);
       }
@@ -176,60 +198,22 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [initializeAudioContext]);
-
-  // Add a new effect to reinitialize context when track changes
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    if (showVisualizer) {
-      console.log('Track changed, reinitializing audio context');
-      // Wait a bit for Howler to initialize the new track
-      timeoutId = setTimeout(() => {
-        initializeAudioContext();
-      }, 200);
-    }
-  
-    return () => {
-      clearTimeout(timeoutId);
-      cleanupAudioContext();
-    };
-  }, [audioState.currentTrack, showVisualizer, initializeAudioContext, cleanupAudioContext]);
+  }, [playlist, audioState.currentTrack, initializeAudioContext, isDragging, onError]);
 
   const draw = useCallback(() => {
-    console.log('Draw function called');
-    
-    if (!canvasRef.current || !analyserRef.current) {
-      console.log('Missing refs:', {
-        canvas: !!canvasRef.current,
-        analyser: !!analyserRef.current
-      });
-      return;
-    }
-  
+    if (!canvasRef.current || !analyserRef.current) return;
+
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
-    if (!context) {
-      console.log('Failed to get canvas context');
-      return;
-    }
-  
+    if (!context) return;
+
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
     
     const drawVisualizer = () => {
-      if (!analyserRef.current) {
-        console.log('Analyser ref lost during animation');
-        return;
-      }
+      if (!analyserRef.current) return;
       
       animationFrameRef.current = requestAnimationFrame(drawVisualizer);
       analyserRef.current.getByteFrequencyData(dataArray);
-      
-      // Log max frequency value to check if we're getting audio data
-      const maxValue = Math.max(...Array.from(dataArray));
-      if (maxValue > 0) {
-        console.log('Receiving audio data, max frequency:', maxValue);
-      }
       
       context.clearRect(0, 0, canvas.width, canvas.height);
       
@@ -262,7 +246,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         x += scaledBarWidth + scaledGap;
       });
     };
-  
+
     drawVisualizer();
   }, []);
 
@@ -272,10 +256,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     if (audioState.isPlaying) {
       playerRef.current.pause();
     } else {
-      await playerRef.current.play();
-      if (showVisualizer) {
-        await initializeAudioContext();
-      }
+      playerRef.current.play();
     }
   };
 
@@ -328,15 +309,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   // Add effect to handle cleanup of audio context when dragging ends
   useEffect(() => {
     if (!isDragging && audioState.isPlaying) {
-      console.log('Starting visualizer due to play state change');
       draw();
     }
-    return () => {
-      if (animationFrameRef.current) {
-        console.log('Cleaning up animation frame');
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
+    if (!isDragging && audioState.isPlaying) {
+      draw();
+    }
   }, [isDragging, audioState.isPlaying, draw]);
 
   useEffect(() => {
@@ -375,7 +352,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         <div className="relative flex flex-col h-full p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
         
             {/* Main content wrapper with height transition */}
-          <div className={`
+          {/* <div className={`
             relative transition-all duration-300 ease-in-out
             ${showVisualizer ? 'flex-1 min-h-[100px]' : 'h-0'}
           `}>
@@ -391,7 +368,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                           hover:scale-[1.01]"
               />
               
-              {/* Overlay play button */}
               <div className="absolute inset-0 flex items-center justify-center
                             bg-black/40 opacity-0 hover:opacity-100
                             transition-opacity duration-200 rounded-lg">
@@ -410,8 +386,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 </Button>
               </div>
             </div>
-          </div>
+          </div> */}
           
+          {/* Audio element */}
+          <audio
+            ref={audioRef}
+            preload="metadata"
+            className="hidden"
+          />
+
+
           {/* Controls section */}
           <div className="flex flex-col space-y-2">
             {/* Progress bar */}
