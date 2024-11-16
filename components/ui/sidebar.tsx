@@ -14,7 +14,7 @@ interface Links {
 
 interface SidebarContextProps {
   open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpen: (open: boolean) => void;
   animate: boolean;
 }
 
@@ -38,7 +38,7 @@ export const SidebarProvider = ({
 }: {
   children: React.ReactNode;
   open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpen?: (open: boolean) => void;
   animate?: boolean;
 }) => {
   const [openState, setOpenState] = useState(false);
@@ -61,7 +61,7 @@ export const Sidebar = ({
 }: {
   children: React.ReactNode;
   open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpen?: (open: boolean) => void;
   animate?: boolean;
 }) => {
   return (
