@@ -103,6 +103,7 @@ export const Logo = () => {
         className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
       >
         <Image src="/sonder-menu.svg" alt="Sonder" width={24} height={24} className="w-6 h-auto flex-shrink-0 "  priority/>
+        <Image src="/sonder-menu.svg" alt="Sonder" width={24} height={24} className="w-6 h-auto flex-shrink-0 "  priority/>
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -120,6 +121,7 @@ export const LogoIcon = () => {
         href="/"
         className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
         >
+        <Image src="/sonder-menu.svg" alt="Sonder" width={24} height={24} className="w-6 h-auto flex-shrink-0 rotate-90"  priority/>
         <Image src="/sonder-menu.svg" alt="Sonder" width={24} height={24} className="w-6 h-auto flex-shrink-0 rotate-90"  priority/>
         </Link>
     );
