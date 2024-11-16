@@ -1,6 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { Sidebar, SidebarBody, SidebarLink } from "../../components/ui/sidebar";
+import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator"
+import { invoke } from '@tauri-apps/api/core';
+
 import {
   IconArrowLeft,
 } from "@tabler/icons-react";
@@ -10,6 +13,15 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+const openInBrowser = async (url: string) => {
+  try {
+    console.log('Opening URL:', url);
+    const result = invoke('open_link_on_click', { url:url});
+    console.log('Result:', result);
+  } catch (error) {
+    console.error('Failed to open URL:', error);
+  }
+};
 
 export default function Layout ({ children } : { children : React.ReactNode}) {
     const links = [
@@ -60,7 +72,8 @@ export default function Layout ({ children } : { children : React.ReactNode}) {
               ))}
             </div>
           </div>
-          <div>
+          <div onClick = {() => openInBrowser("https://github.com/greeenboi")}>
+            <Separator className="bg-muted-foreground/40 my-1" />
             <SidebarLink
               link={{
                 label: "Suvan GS",
@@ -71,6 +84,7 @@ export default function Layout ({ children } : { children : React.ReactNode}) {
                     <AvatarFallback>SGS</AvatarFallback>
                   </Avatar>
                 ),
+                iconRight: <Image src="/sonder-github.svg" alt="My Github" width={24} height={24} className="w-5 h-auto flex-shrink-0 "  priority />
               }}
             />
           </div>
