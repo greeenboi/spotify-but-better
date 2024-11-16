@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { useSidebarStore } from "@/lib/store/sidebar-store";
+import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../../components/ui/sidebar";
 import {
   IconArrowLeft,
@@ -9,11 +8,11 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 
 export default function Layout ({ children } : { children : React.ReactNode}) {
-  const { open, setOpen } = useSidebarStore();
-  const links = [
+    const links = [
         // {
         //   label: "Dashboard",
         //   href: "#",
@@ -43,6 +42,7 @@ export default function Layout ({ children } : { children : React.ReactNode}) {
           ),
         },
       ];
+      const [open, setOpen] = useState(false);
   return (
     <div
       className={cn(
@@ -88,7 +88,7 @@ export const Logo = () => {
         href="/"
         className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
       >
-        <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+        <Image src="/sonder-menu.svg" alt="Sonder" width={24} height={24} className="w-6 h-auto flex-shrink-0 "  priority/>
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -106,7 +106,7 @@ export const LogoIcon = () => {
         href="/"
         className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
         >
-        <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+        <Image src="/sonder-menu.svg" alt="Sonder" width={24} height={24} className="w-6 h-auto flex-shrink-0 rotate-90"  priority/>
         </Link>
     );
 };

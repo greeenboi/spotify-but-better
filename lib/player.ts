@@ -10,10 +10,13 @@ export class Player {
   onEndCallback?: () => void;
   onLoadCallback?: () => void;
   onErrorCallback?: (error: Error) => void;
+  onTrackChangeCallback?: (index: number) => void;
+  isLooping: boolean;
 
   constructor(playlist: PlaylistItem[]) {
     this.playlist = playlist;
     this.index = 0;
+    this.isLooping = false;
   }
 
   play(index?: number) {
@@ -34,17 +37,21 @@ export class Player {
         onload: () => self.onLoadCallback?.(),
         onend: () => {
           self.onEndCallback?.();
-          self.skip('next');
+          if (!this.isLooping) {
+            self.skip('next');
+          }
         },
         onpause: () => self.onPauseCallback?.(),
         onseek: () => self.onSeekCallback?.(sound.seek() as number),
         onstop: () => self.onPauseCallback?.(),
-        onloaderror: (_, error) => self.onErrorCallback?.(new Error(String(error)))
+        onloaderror: (_, error) => self.onErrorCallback?.(new Error(String(error))),
+        loop: this.isLooping
       });
     }
 
     sound.play();
     self.index = index;
+    self.onTrackChangeCallback?.(index);
 
     return sound;
   }
@@ -72,6 +79,7 @@ export class Player {
     }
 
     this.skipTo(index);
+    this.onTrackChangeCallback?.(index);
   }
 
   skipTo(index: number) {
@@ -79,6 +87,7 @@ export class Player {
       this.playlist[this.index].howl?.stop();
     }
 
+    this.onTrackChangeCallback?.(index);
     return this.play(index);
   }
 
@@ -95,5 +104,14 @@ export class Player {
         item.howl.unload();
       }
     });
+  }
+
+  toggleLoop(): boolean {
+    this.isLooping = !this.isLooping;
+    const sound = this.playlist[this.index].howl;
+    if (sound) {
+      sound.loop(this.isLooping);
+    }
+    return this.isLooping;
   }
 }

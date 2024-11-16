@@ -25,6 +25,7 @@ export interface AudioState {
   volume: number;
   currentTrack: number;
   playlist: PlaylistItem[];
+  isLooping: boolean;
 }
 
 export interface VisualizerConfig {

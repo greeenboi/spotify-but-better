@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { PlayCircle, PauseCircle, Volume2, VolumeX, Eye, EyeOff, StepBack, StepForward } from 'lucide-react';
+import { PlayCircle, PauseCircle, Volume2, VolumeX, Eye, EyeOff, StepBack, StepForward, Repeat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
@@ -30,9 +30,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     duration: 0,
     currentTime: 0,
     isMuted: false,
-    volume: 0.7,
+    volume: 0.5,
     currentTrack: 0,
-    playlist: playlist
+    playlist: playlist,
+    isLooping: false,
   });
 
   // Add states for UI interactions
@@ -113,6 +114,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     };
 
     player.onErrorCallback = onError;
+
+    player.onTrackChangeCallback = (index) => {
+      setAudioState(prev => ({ ...prev, currentTrack: index }));
+      onTrackChange?.(index);
+    };
+
   }, [playlist, onError, onPlay, onPause, onTrackChange]);
 
   useEffect(() => {
@@ -293,6 +300,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     setIsDragging(false);
   };
 
+  const toggleLoop = () => {
+    if (!playerRef.current) return;
+    const isLooping = playerRef.current.toggleLoop();
+    setAudioState(prev => ({ ...prev, isLooping }));
+  };
+
   // Add effect to handle cleanup of audio context when dragging ends
   useEffect(() => {
     if (!isDragging && audioState.isPlaying) {
@@ -455,6 +468,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   )}
                 </Button>
                 
+                
                 {/* Current Track Info */}
                 <div className="relative group">
                   <div className="flex flex-col justify-center">
@@ -479,6 +493,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 onMouseLeave={() => setIsVolumeVisible(false)}
               >
                 <div className="flex items-center space-x-2">
+                  
                   <Button
                     variant="ghost"
                     size="icon"
@@ -506,6 +521,18 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                       className={`${isVolumeVisible ? 'visible' : 'invisible'}`}
                     />
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleLoop}
+                    className={`
+                      h-8 w-8 sm:h-10 sm:w-10 rounded-full hover:scale-110
+                      transition-transform duration-200
+                      ${audioState.isLooping ? 'text-primary' : ''}
+                    `}
+                  >
+                    <Repeat className="h-4 w-4 sm:h-6 sm:w-6" />
+                  </Button>
                 </div>
               </div>
             </div>
