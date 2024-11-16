@@ -13,9 +13,11 @@
     "windows": [
       {
         "title": "fuck Spotify",
-        "width": 800,
-        "height": 600,
+        "width": 900,
+        "height": 700,
         "resizable": true,
+        "minWidth": 900,
+        "minHeight": 700,
         "fullscreen": false
       }
     ],

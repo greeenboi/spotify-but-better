@@ -31,7 +31,8 @@
     "react-dom": "^18",
     "react-transition-progress": "^0.0.4",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "tauri-controls": "^0.4.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.1.0",

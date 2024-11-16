@@ -1,10 +1,10 @@
 [package]
-name = "app"
+name = "Sonder"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A Better Music Player"
+authors = ["greeenboi"]
 license = ""
-repository = ""
+repository = "https://github.com/greeenboi/spotify-but-better"
 edition = "2021"
 rust-version = "1.77.2"
 
@@ -15,7 +15,7 @@ name = "app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.2", features = [] }
+tauri-build = { version = "2.0.2"  , features = [] }
 
 [dependencies]
 serde_json = "1.0"

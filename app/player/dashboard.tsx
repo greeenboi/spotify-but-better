@@ -23,7 +23,19 @@ const samplePlaylist: PlaylistItem[] = [
       file: "/music/Days of Thunder - The Midnight.mp3",
       artist: "The Midnight",
       howl: null
-    }
+    },
+    {
+      title: "23",
+      file: "/music/23 - Diamond Eyes.mp3",
+      artist: "Diamond Eyes",
+      howl: null
+    },
+    {
+      title: "Jaded",
+      file: "/music/Jaded - yitaku.mp3",
+      artist: "yitaku",
+      howl: null
+    },
   ];
 
 export default function Dashboard() {
