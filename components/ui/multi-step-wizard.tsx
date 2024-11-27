@@ -2,68 +2,77 @@ import { motion } from "framer-motion";
 import { ComponentProps } from "react";
 
 export default function Step({ step, currentStep }: { step: number; currentStep: number }) {
-  const status =
-    currentStep === step
-      ? "active"
-      : currentStep < step
-      ? "inactive"
-      : "complete";
+  const status = currentStep === step ? "active" : currentStep < step ? "inactive" : "complete";
 
   return (
-    <motion.div animate={status} className="relative">
-      <motion.div
-        variants={{
-          active: {
-            scale: 1,
-            transition: {
-              delay: 0,
-              duration: 0.2,
+    <div className="relative h-10 w-10"> {/* Fixed size container */}
+      <motion.div animate={status} className="absolute inset-0">
+        <motion.div
+          variants={{
+            active: {
+              scale: 1,
             },
-          },
-          complete: {
-            scale: 1.25,
-          },
-        }}
-        transition={{
-          duration: 0.6,
-          delay: 0.2,
-          type: "tween",
-          ease: "circOut",
-        }}
-        className="absolute inset-0 rounded-full bg-blue-200"
-      />
+            complete: {
+              scale: 1,
+            },
+            inactive: {
+              scale: 1,
+            },
+          }}
+          className="relative h-full w-full"
+        >
+          <motion.div
+            variants={{
+              active: {
+                scale: 1,
+                transition: { delay: 0, duration: 0.2 },
+              },
+              complete: {
+                scale: 1.25,
+              },
+            }}
+            transition={{
+              duration: 0.6,
+              delay: 0.2,
+              type: "tween",
+              ease: "circOut",
+            }}
+            className="absolute inset-0 rounded-full bg-[hsl(142.1,70.6%,25%)]"
+          />
 
-      <motion.div
-        initial={false}
-        variants={{
-          inactive: {
-            backgroundColor: "#fff", // neutral
-            borderColor: "#e5e5e5", // neutral-200
-            color: "#a3a3a3", // neutral-400
-          },
-          active: {
-            backgroundColor: "#fff",
-            borderColor: "#3b82f6", // blue-500
-            color: "#3b82f6", // blue-500
-          },
-          complete: {
-            backgroundColor: "#3b82f6", // blue-500
-            borderColor: "#3b82f6", // blue-500
-            color: "#3b82f6", // blue-500
-          },
-        }}
-        transition={{ duration: 0.2 }}
-        className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold"
-      >
-        <div className="flex items-center justify-center">
-          {status === "complete" ? (
-            <CheckIcon className="h-6 w-6 text-white" />
-          ) : (
-            <span>{step}</span>
-          )}
-        </div>
+          <motion.div
+            initial={false}
+            variants={{
+              inactive: {
+                backgroundColor: "hsl(20, 14.3%, 4.1%)",
+                borderColor: "hsl(20, 14.3%, 15%)",
+                color: "hsl(20, 17.3%, 25%)",
+              },
+              active: {
+                backgroundColor: "hsl(20, 14.3%, 4.1%)",
+                borderColor: "hsl(142.1, 70.6%, 45.3%)",
+                color: "hsl(142.1, 70.6%, 45.3%)",
+              },
+              complete: {
+                backgroundColor: "hsl(142.1, 70.6%, 45.3%)",
+                borderColor: "hsl(142.1, 70.6%, 45.3%)",
+                color: "hsl(142.1, 70.6%, 45.3%)",
+              },
+            }}
+            transition={{ duration: 0.2 }}
+            className="relative flex h-full w-full items-center justify-center rounded-full border-2 font-semibold"
+          >
+            <div className="flex items-center justify-center">
+              {status === "complete" ? (
+                <CheckIcon className="h-6 w-6 text-white" />
+              ) : (
+                <span>{step}</span>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
 
