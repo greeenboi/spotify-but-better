@@ -5,13 +5,13 @@
   "windows": [
     "main"
   ],
-  "permissions":[
+  "permissions": [
     "core:default",
     "shell:allow-open",
     "shell:allow-execute",
-    "shell:allow-spawn"
-
+    "shell:allow-spawn",
+    "store:default",
+    "log:default",
+    "dialog:default"
   ]
 }
-
-
