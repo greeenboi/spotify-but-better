@@ -97,7 +97,7 @@ body {
 
 .container {
   --uib-size: 45px;
-  --uib-color: black;
+  --uib-color: var(--primary);
   --uib-speed: 2.5s;
   display: flex;
   flex-direction: column;
