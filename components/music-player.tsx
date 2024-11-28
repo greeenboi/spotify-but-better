@@ -1,10 +1,22 @@
-"use client";
+'use client';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { PlayCircle, PauseCircle, Volume2, VolumeX, StepBack, StepForward, Repeat } from 'lucide-react';
+import {
+  PlayCircle,
+  PauseCircle,
+  Volume2,
+  VolumeX,
+  StepBack,
+  StepForward,
+  Repeat,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import type { AudioPlayerProps, AudioState, VisualizerConfig } from '@/lib/types/audio.player';
+import type {
+  AudioPlayerProps,
+  AudioState,
+  VisualizerConfig,
+} from '@/lib/types/audio.player';
 import { Player } from '@/lib/player';
 
 const DEFAULT_CONFIG: VisualizerConfig = {
@@ -23,7 +35,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   onError,
   onPlay,
   onPause,
-  onTrackChange
+  onTrackChange,
 }) => {
   const [audioState, setAudioState] = useState<AudioState>({
     isPlaying: false,
@@ -41,7 +53,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const [isHovering, setIsHovering] = useState(false);
   const [isVolumeVisible, setIsVolumeVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [showVisualizer ] = useState(false);
+  const [showVisualizer] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -58,7 +70,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     try {
       if (!audioContextRef.current) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = new (
+          window.AudioContext || (window as any).webkitAudioContext
+        )();
       }
 
       if (audioContextRef.current.state === 'suspended') {
@@ -71,7 +85,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       }
 
       if (!sourceRef.current) {
-        sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+        sourceRef.current = audioContextRef.current.createMediaElementSource(
+          audioRef.current
+        );
         sourceRef.current.connect(analyserRef.current);
         analyserRef.current.connect(audioContextRef.current.destination);
       }
@@ -86,7 +102,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     }
 
     const player = playerRef.current;
-    
+
     player.onPlayCallback = () => {
       setAudioState(prev => ({ ...prev, isPlaying: true }));
       onPlay?.();
@@ -97,17 +113,17 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       onPause?.();
     };
 
-    player.onSeekCallback = (seek) => {
+    player.onSeekCallback = seek => {
       setAudioState(prev => ({ ...prev, currentTime: seek }));
     };
 
     player.onLoadCallback = () => {
       const sound = player.playlist[player.index].howl;
       if (sound) {
-        setAudioState(prev => ({ 
-          ...prev, 
+        setAudioState(prev => ({
+          ...prev,
           duration: sound.duration(),
-          currentTrack: player.index
+          currentTrack: player.index,
         }));
         onTrackChange?.(player.index);
       }
@@ -115,11 +131,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
     player.onErrorCallback = onError;
 
-    player.onTrackChangeCallback = (index) => {
+    player.onTrackChangeCallback = index => {
       setAudioState(prev => ({ ...prev, currentTrack: index }));
       onTrackChange?.(index);
     };
-
   }, [playlist, onError, onPlay, onPause, onTrackChange]);
 
   useEffect(() => {
@@ -142,7 +157,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const handleLoadedMetadata = () => {
       setAudioState(prev => ({
         ...prev,
-        duration: audio.duration
+        duration: audio.duration,
       }));
     };
 
@@ -150,7 +165,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       if (!isDragging) {
         setAudioState(prev => ({
           ...prev,
-          currentTime: audio.currentTime
+          currentTime: audio.currentTime,
         }));
       }
     };
@@ -159,7 +174,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       setAudioState(prev => ({
         ...prev,
         isPlaying: false,
-        currentTime: 0
+        currentTime: 0,
       }));
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -167,7 +182,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     };
 
     const handleError = (e: Event) => {
-      const error = (e as ErrorEvent).error || new Error('Audio loading failed');
+      const error =
+        (e as ErrorEvent).error || new Error('Audio loading failed');
       onError?.(error);
     };
 
@@ -190,7 +206,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
       document.removeEventListener('click', initOnInteraction);
-      
+
       if (progressUpdateInterval.current) {
         clearInterval(progressUpdateInterval.current);
       }
@@ -198,7 +214,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [playlist, audioState.currentTrack, initializeAudioContext, isDragging, onError]);
+  }, [
+    playlist,
+    audioState.currentTrack,
+    initializeAudioContext,
+    isDragging,
+    onError,
+  ]);
 
   const draw = useCallback(() => {
     if (!canvasRef.current || !analyserRef.current) return;
@@ -208,33 +230,39 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     if (!context) return;
 
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-    
+
     const drawVisualizer = () => {
       if (!analyserRef.current) return;
-      
+
       animationFrameRef.current = requestAnimationFrame(drawVisualizer);
       analyserRef.current.getByteFrequencyData(dataArray);
-      
+
       context.clearRect(0, 0, canvas.width, canvas.height);
-      
-      const totalWidth = (DEFAULT_CONFIG.barWidth + DEFAULT_CONFIG.barGap) * dataArray.length;
+
+      const totalWidth =
+        (DEFAULT_CONFIG.barWidth + DEFAULT_CONFIG.barGap) * dataArray.length;
       const scale = canvas.width / totalWidth;
       const scaledBarWidth = DEFAULT_CONFIG.barWidth * scale;
       const scaledGap = DEFAULT_CONFIG.barGap * scale;
-      
+
       let x = 0;
-      
-      dataArray.forEach((value) => {
+
+      dataArray.forEach(value => {
         const percentHeight = value / 255;
         const barHeight = Math.max(
           DEFAULT_CONFIG.minHeight,
           percentHeight * DEFAULT_CONFIG.maxHeight
         );
-        
-        const gradient = context.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
+
+        const gradient = context.createLinearGradient(
+          0,
+          canvas.height - barHeight,
+          0,
+          canvas.height
+        );
         gradient.addColorStop(0, DEFAULT_CONFIG.colors.start);
         gradient.addColorStop(1, DEFAULT_CONFIG.colors.end);
-        
+
         context.fillStyle = gradient;
         context.fillRect(
           x,
@@ -242,7 +270,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           scaledBarWidth,
           barHeight
         );
-        
+
         x += scaledBarWidth + scaledGap;
       });
     };
@@ -318,9 +346,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (playerRef.current?.playlist[playerRef.current.index].howl && audioState.isPlaying && !isDragging) {
+      if (
+        playerRef.current?.playlist[playerRef.current.index].howl &&
+        audioState.isPlaying &&
+        !isDragging
+      ) {
         const sound = playerRef.current.playlist[playerRef.current.index].howl;
-        setAudioState(prev => ({ ...prev, currentTime: sound?.seek() as number || 0 }));
+        setAudioState(prev => ({
+          ...prev,
+          currentTime: (sound?.seek() as number) || 0,
+        }));
       }
     }, 1000);
     return () => clearInterval(interval);
@@ -338,8 +373,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   };
 
   return (
-    <div className={`w-full ${showVisualizer? "h-full max-h-screen" : "h-fit"}`}>
-      <Card 
+    <div
+      className={`w-full ${showVisualizer ? 'h-full max-h-screen' : 'h-fit'}`}
+    >
+      <Card
         className={`
           relative h-full overflow-hidden
           transition-all duration-300 ease-in-out
@@ -350,8 +387,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         onMouseLeave={() => setIsVolumeVisible(false)}
       >
         <div className="relative flex flex-col h-full p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
-        
-            {/* Main content wrapper with height transition */}
+          {/* Main content wrapper with height transition */}
           {/* <div className={`
             relative transition-all duration-300 ease-in-out
             ${showVisualizer ? 'flex-1 min-h-[100px]' : 'h-0'}
@@ -387,14 +423,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               </div>
             </div>
           </div> */}
-          
-          {/* Audio element */}
-          <audio
-            ref={audioRef}
-            preload="metadata"
-            className="hidden"
-          />
 
+          {/* Audio element */}
+          <audio ref={audioRef} preload="metadata" className="hidden" />
 
           {/* Controls section */}
           <div className="flex flex-col space-y-2">
@@ -466,33 +497,42 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     <EyeOff className="h-4 w-4 sm:h-6 sm:w-6" />
                   )}
                 </Button> */}
-                
-                
+
                 {/* Current Track Info */}
                 <div className="relative group">
                   <div className="flex flex-col justify-center">
-                    <p className="text-sm font-medium">{playlist[audioState.currentTrack]?.title}</p>
-                    <p className="text-xs text-muted-foreground">{playlist[audioState.currentTrack]?.artist}</p>
+                    <p className="text-sm font-medium">
+                      {playlist[audioState.currentTrack]?.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {playlist[audioState.currentTrack]?.artist}
+                    </p>
                   </div>
-                  
+
                   {/* Next Track Info (Hover) */}
-                  <div className="absolute right-0 left-full -top-4 mb-2 opacity-0 group-hover:opacity-100
+                  <div
+                    className="absolute right-0 left-full -top-4 mb-2 opacity-0 group-hover:opacity-100
                                 transition-opacity duration-200 bg-background/95 backdrop-blur-sm
-                                rounded-lg shadow-lg p-2 min-w-[200px] ml-2">
+                                rounded-lg shadow-lg p-2 min-w-[200px] ml-2"
+                  >
                     <p className="text-xs text-muted-foreground">Up Next</p>
-                    <p className="font-medium text-sm">{getNextTrackInfo()?.title}</p>
-                    <p className="text-xs text-muted-foreground">{getNextTrackInfo()?.artist}</p>
+                    <p className="font-medium text-sm">
+                      {getNextTrackInfo()?.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {getNextTrackInfo()?.artist}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Volume control */}
-              <div className="relative"
+              <div
+                className="relative"
                 onMouseEnter={() => setIsVolumeVisible(true)}
                 onMouseLeave={() => setIsVolumeVisible(false)}
               >
                 <div className="flex items-center space-x-2">
-                  
                   <Button
                     variant="ghost"
                     size="icon"
@@ -506,7 +546,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                       <Volume2 className="h-4 w-4" />
                     )}
                   </Button>
-                  <div 
+                  <div
                     className={`
                       transition-all duration-200 ease-in-out
                       ${isVolumeVisible ? 'w-24 opacity-100' : 'w-0 opacity-0'}

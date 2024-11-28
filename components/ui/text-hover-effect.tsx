@@ -1,6 +1,6 @@
-"use client";
-import React, { useRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+'use client';
+import React, { useRef, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 export const TextHoverEffect = ({
   text,
@@ -13,7 +13,7 @@ export const TextHoverEffect = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
-  const [maskPosition, setMaskPosition] = useState({ cx: "50%", cy: "50%" });
+  const [maskPosition, setMaskPosition] = useState({ cx: '50%', cy: '50%' });
 
   useEffect(() => {
     if (svgRef.current && cursor.x !== null && cursor.y !== null) {
@@ -36,7 +36,7 @@ export const TextHoverEffect = ({
       xmlns="http://www.w3.org/2000/svg"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onMouseMove={(e) => setCursor({ x: e.clientX, y: e.clientY })}
+      onMouseMove={e => setCursor({ x: e.clientX, y: e.clientY })}
       className="select-none"
     >
       <defs>
@@ -49,11 +49,11 @@ export const TextHoverEffect = ({
         >
           {hovered && (
             <>
-              <stop offset="0%" stopColor={"var(--yellow-600)"} />
-              <stop offset="25%" stopColor={"var(--green-600)"} />
-              <stop offset="50%" stopColor={"var(--blue-600)"} />
-              <stop offset="75%" stopColor={"var(--cyan-600)"} />
-              <stop offset="100%" stopColor={"var(--violet-600)"} />
+              <stop offset="0%" stopColor={'var(--yellow-600)'} />
+              <stop offset="25%" stopColor={'var(--green-600)'} />
+              <stop offset="50%" stopColor={'var(--blue-600)'} />
+              <stop offset="75%" stopColor={'var(--cyan-600)'} />
+              <stop offset="100%" stopColor={'var(--violet-600)'} />
             </>
           )}
         </linearGradient>
@@ -67,12 +67,12 @@ export const TextHoverEffect = ({
 
           // example for a smoother animation below
 
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 50,
-              duration: duration ?? 0,
-            }}
+          transition={{
+            type: 'spring',
+            stiffness: 300,
+            damping: 50,
+            duration: duration ?? 0,
+          }}
         >
           <stop offset="0%" stopColor="white" />
           <stop offset="100%" stopColor="black" />
@@ -112,7 +112,7 @@ export const TextHoverEffect = ({
         }}
         transition={{
           duration: 4,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         }}
       >
         {text}

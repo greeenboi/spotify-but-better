@@ -12,7 +12,6 @@ body {
   }
 }
 
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -70,7 +69,6 @@ body {
   }
 }
 
-
 @layer base {
   * {
     @apply border-border;
@@ -78,19 +76,18 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-  
 }
 
 @font-face {
-  font-family: 'GeistMonoVF';
-  src: url('./fonts/GeistMonoVF.woff') format('woff');
+  font-family: "GeistMonoVF";
+  src: url("./fonts/GeistMonoVF.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'GeistVF';
-  src: url('./fonts/GeistVF.woff') format('woff');
+  font-family: "GeistVF";
+  src: url("./fonts/GeistVF.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -117,7 +114,7 @@ body {
 .slice::after {
   --uib-a: calc(var(--uib-speed) / -2);
   --uib-b: calc(var(--uib-speed) / -6);
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: calc(50% - var(--uib-size) / 12);

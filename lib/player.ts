@@ -44,8 +44,9 @@ export class Player {
         onpause: () => self.onPauseCallback?.(),
         onseek: () => self.onSeekCallback?.(sound.seek() as number),
         onstop: () => self.onPauseCallback?.(),
-        onloaderror: (_, error) => self.onErrorCallback?.(new Error(String(error))),
-        loop: this.isLooping
+        onloaderror: (_, error) =>
+          self.onErrorCallback?.(new Error(String(error))),
+        loop: this.isLooping,
       });
     }
 
@@ -65,7 +66,7 @@ export class Player {
 
   skip(direction: 'next' | 'prev') {
     let index = this.index;
-    
+
     if (direction === 'prev') {
       index = index - 1;
       if (index < 0) {

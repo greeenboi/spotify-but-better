@@ -1,6 +1,6 @@
 import { LazyStore } from '@tauri-apps/plugin-store';
 
 export const store = new LazyStore('settings.json', {
-    autoSave: true,
-    createNew: true,
+  autoSave: true,
+  createNew: true,
 });
