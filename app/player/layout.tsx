@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { Sidebar, SidebarBody, SidebarLink } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
 import { invoke } from '@tauri-apps/api/core';

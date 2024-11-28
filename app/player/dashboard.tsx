@@ -3,7 +3,7 @@ import { Play } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import AudioPlayer from '@/components/music-player';
-import { PlaylistItem } from '@/lib/types/audio.player';
+import type { PlaylistItem } from '@/lib/types/audio.player';
 
 const samplePlaylist: PlaylistItem[] = [
   {

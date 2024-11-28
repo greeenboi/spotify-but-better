@@ -1,7 +1,8 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { LinkProps } from 'next/link';
-import React, { useState, createContext, useContext } from 'react';
+import type { LinkProps } from 'next/link';
+import type React from 'react';
+import { useState, createContext, useContext } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { IconMenu2, IconX } from '@tabler/icons-react';
 import { Link } from 'react-transition-progress/next';

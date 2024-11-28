@@ -20,12 +20,10 @@ export class Player {
   }
 
   play(index?: number) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const self = this;
     let sound: Howl;
 
-    index = typeof index === 'number' ? index : self.index;
-    const data = self.playlist[index];
+    index = typeof index === 'number' ? index : this.index;
+    const data = this.playlist[index];
 
     if (data.howl) {
       sound = data.howl;
@@ -33,26 +31,26 @@ export class Player {
       sound = data.howl = new Howl({
         src: [data.file],
         html5: true,
-        onplay: () => self.onPlayCallback?.(),
-        onload: () => self.onLoadCallback?.(),
+        onplay: () => this.onPlayCallback?.(),
+        onload: () => this.onLoadCallback?.(),
         onend: () => {
-          self.onEndCallback?.();
+          this.onEndCallback?.();
           if (!this.isLooping) {
-            self.skip('next');
+            this.skip('next');
           }
         },
-        onpause: () => self.onPauseCallback?.(),
-        onseek: () => self.onSeekCallback?.(sound.seek() as number),
-        onstop: () => self.onPauseCallback?.(),
+        onpause: () => this.onPauseCallback?.(),
+        onseek: () => this.onSeekCallback?.(sound.seek() as number),
+        onstop: () => this.onPauseCallback?.(),
         onloaderror: (_, error) =>
-          self.onErrorCallback?.(new Error(String(error))),
+          this.onErrorCallback?.(new Error(String(error))),
         loop: this.isLooping,
       });
     }
 
     sound.play();
-    self.index = index;
-    self.onTrackChangeCallback?.(index);
+    this.index = index;
+    this.onTrackChangeCallback?.(index);
 
     return sound;
   }

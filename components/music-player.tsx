@@ -1,5 +1,6 @@
 'use client';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import type React from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   PlayCircle,
   PauseCircle,
