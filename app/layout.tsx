@@ -3,8 +3,7 @@ import { ProgressBar, ProgressBarProvider } from 'react-transition-progress';
 import localFont from 'next/font/local';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import { Suspense } from 'react';
-import Loader from '@/components/ui/loader';
+
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -39,10 +38,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ProgressBarProvider>
-            <Suspense fallback={<Loader />}>
               {children}
               <ProgressBar className=" bg-primary fixed h-2 bottom-1 z-50" />
-            </Suspense>
           </ProgressBarProvider>
         </ThemeProvider>
       </body>

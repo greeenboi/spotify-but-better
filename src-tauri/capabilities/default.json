@@ -12,6 +12,7 @@
     "shell:allow-spawn",
     "store:default",
     "log:default",
-    "dialog:default"
+    "dialog:default",
+    "fs:default"
   ]
 }

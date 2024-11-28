@@ -11,6 +11,7 @@ export default function Home() {
     const checkNavigation = async () => {
       console.log('Checking navigation...');
       const hasVisited = await store.get<{ value: boolean }>('hasVisited');
+      console.log('Has visited:', hasVisited);
       if (hasVisited?.value) {
         router.push('/player');
       } else if (!hasVisited) {

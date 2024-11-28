@@ -13,7 +13,7 @@ export default function Step({
         : 'complete';
 
   return (
-    <div className="relative h-10 w-10">
+    <div className="relative h-8 w-8">
       {' '}
       {/* Fixed size container */}
       <motion.div animate={status} className="absolute inset-0">
@@ -54,7 +54,7 @@ export default function Step({
             initial={false}
             variants={{
               inactive: {
-                backgroundColor: 'hsl(20, 14.3%, 4.1%)',
+                backgroundColor: 'hsla(20, 14.3%, 4.1%, 1)',
                 borderColor: 'hsl(20, 14.3%, 15%)',
                 color: 'hsl(20, 17.3%, 25%)',
               },
