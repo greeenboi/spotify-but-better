@@ -4,7 +4,6 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 
-
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
   variable: '--font-geist-sans',
@@ -38,8 +37,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ProgressBarProvider>
-              {children}
-              <ProgressBar className=" bg-primary fixed h-2 bottom-1 z-50" />
+            {children}
+            <ProgressBar className=" bg-primary fixed h-2 bottom-1 z-50" />
           </ProgressBarProvider>
         </ThemeProvider>
       </body>

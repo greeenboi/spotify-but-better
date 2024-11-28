@@ -19,7 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { TextLoop } from '@/components/ui/text-loop';
 import { FolderOpen, User, Cog, Flag } from 'lucide-react';
 import { TextMorph } from '@/components/ui/text-morph';
-import { Mp3Data } from '@/lib/types/playlist.data';
+import type { Mp3Data } from '@/lib/types/playlist.data';
 import Loader from '@/components/ui/loader';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -126,14 +126,20 @@ export default function Home() {
                   <Button
                     variant={playlistData?.path ? 'outline' : 'default'}
                     onClick={async () => {
-                      const path = await openDialog()
+                      const path = await openDialog();
                       if (path) {
-                        setPlaylistData({ path: path as string, count: 0, files: [] })
+                        setPlaylistData({
+                          path: path as string,
+                          count: 0,
+                          files: [],
+                        });
                       }
                     }}
                     className="w-full"
                   >
-                    {playlistData?.path ? 'Choose Another Directory' : 'Select Directory'}
+                    {playlistData?.path
+                      ? 'Choose Another Directory'
+                      : 'Select Directory'}
                   </Button>
                   {playlistData?.path && (
                     <motion.div
@@ -143,7 +149,7 @@ export default function Home() {
                     >
                       <Alert>
                         <AlertDescription className="break-all">
-                          <ScrollArea className='py-2'>
+                          <ScrollArea className="py-2">
                             Selected Directory: <pre>{playlistData.path}</pre>
                             <ScrollBar orientation="horizontal" />
                           </ScrollArea>
@@ -154,18 +160,20 @@ export default function Home() {
                   <Button
                     className="w-full"
                     variant="secondary"
-                    onClick={() => playlistData?.path && countMp3Files(playlistData.path)
-                      .then(data => {
-                        setPlaylistData(prev => ({
-                          ...prev!,
-                          count: data.count,
-                          files: data.files
-                        }))
-                        isSeeding(false);
-                      })
-                      .catch(error => {
-                        console.error(error)
-                      })
+                    onClick={() =>
+                      playlistData?.path &&
+                      countMp3Files(playlistData.path)
+                        .then(data => {
+                          setPlaylistData(prev => ({
+                            ...prev!,
+                            count: data.count,
+                            files: data.files,
+                          }));
+                          isSeeding(false);
+                        })
+                        .catch(error => {
+                          console.error(error);
+                        })
                     }
                     disabled={!playlistData?.path || seeding}
                   >
@@ -201,7 +209,10 @@ export default function Home() {
                           <CardContent className="p-0">
                             <ScrollArea className="h-[150px] w-full rounded-md border">
                               {playlistData.files.map((file, index) => (
-                                <div key={index} className="py-2 border-b border-gray-600 border-dashed font-geistMono text-sm">
+                                <div
+                                  key={index}
+                                  className="py-2 border-b border-gray-600 border-dashed font-geistMono text-sm"
+                                >
                                   {file}
                                 </div>
                               ))}
@@ -333,7 +344,7 @@ export default function Home() {
                       setStep(step - 1);
                     }
                   }}
-                  disabled={step === 1 }
+                  disabled={step === 1}
                 >
                   Back
                 </Button>
@@ -348,7 +359,7 @@ export default function Home() {
                       setStep(step + 1);
                     }
                   }}
-                  disabled={step > 4 }
+                  disabled={step > 4}
                 >
                   {step === 4 ? 'Finish' : 'Continue'}
                 </Button>
