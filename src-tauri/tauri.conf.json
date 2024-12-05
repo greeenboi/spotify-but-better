@@ -26,6 +26,11 @@
     },
     "withGlobalTauri": true
   },
+  "plugins": {
+    "sql": {
+      "preload" : ["sqlite:playlists.db"]
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",

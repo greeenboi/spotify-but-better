@@ -6,7 +6,7 @@ import { store } from '@/lib/store/lazy-store';
 
 export default function Home() {
   const router = useRouter();
-
+  
   useEffect(() => {
     const checkNavigation = async () => {
       console.log('Checking navigation...');

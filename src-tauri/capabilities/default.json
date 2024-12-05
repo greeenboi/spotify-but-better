@@ -13,6 +13,8 @@
     "store:default",
     "log:default",
     "dialog:default",
-    "fs:default"
+    "fs:default",
+    "sql:default",
+    "sql:allow-execute"
   ]
 }

@@ -15,15 +15,18 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+// import { Checkbox } from '@/components/ui/checkbox';
 import { TextLoop } from '@/components/ui/text-loop';
-import { FolderOpen, User, Cog, Flag } from 'lucide-react';
+import { FolderOpen, User, Cog, RefreshCw, Check, Music } from 'lucide-react';
 import { TextMorph } from '@/components/ui/text-morph';
+import { Progress } from "@/components/ui/progress";
 import type { Mp3Data } from '@/lib/types/playlist.data';
-import Loader from '@/components/ui/loader';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Database from '@tauri-apps/plugin-sql';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Confetti } from '@/components/ui/confetti';
 
 interface playlistDataType {
   path: string;
@@ -31,15 +34,56 @@ interface playlistDataType {
   files: string[];
 }
 
+interface SongRecord {
+  name: string;
+  artist: string;
+  playlist: string;
+}
+
+async function insertSongToDatabase(songData: {
+  name: string;
+  filePath: string;
+  playlist: string;
+}) {
+  try {
+    const db = await Database.load('sqlite:playlists.db');
+    // if (!loadDb) {
+    //   console.error('Database not loaded');
+    //   return false;
+    // }
+    
+    const filename = songData.name;
+    let songName = filename;
+    let artistName = '';
+    
+    if (filename.includes(' - ')) {
+      const [name, artist] = filename.split(' - ').map(s => s.trim());
+      songName = name;
+      artistName = artist;
+    } else {
+      return false;
+    }
+
+    await db.execute(
+      "INSERT INTO playlists (name, artist, image, file_location, playlist) VALUES ($1, $2, $3, $4, $5)",
+      [songName, artistName, '', songData.filePath, songData.playlist]
+    );
+    return true;
+  } catch (error) {
+    console.error('Error inserting song:', error);
+    return false;
+  }
+}
+
 export default function Home() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [playlistData, setPlaylistData] = useState<playlistDataType>();
   const [showForm, setShowForm] = useState(false);
-  const [optionalStep1, setOptionalStep1] = useState(false);
-  const [optionalStep2, setOptionalStep2] = useState('');
   const [name, setName] = useState<string>('');
   const [seeding, isSeeding] = useState(false);
+  const [dbProgress, setDbProgress] = useState<number>(0);
+  const [dbSongs, setDbSongs] = useState<SongRecord[]>([]);
 
   console.log(seeding);
 
@@ -87,6 +131,17 @@ export default function Home() {
       files: mp3Files,
     };
   }
+
+  const fetchSongs = async () => {
+    const db = await Database.load('sqlite:playlists.db');
+    if (!db) return;
+    try {
+      const result = await db.select("SELECT name, artist, playlist FROM playlists");
+      setDbSongs(result as SongRecord[]);
+    } catch (error) {
+      console.error('Error fetching songs:', error);
+    }
+  };
 
   const renderStepContent = () => {
     switch (step) {
@@ -165,6 +220,7 @@ export default function Home() {
                       countMp3Files(playlistData.path)
                         .then(data => {
                           setPlaylistData(prev => ({
+                            // biome-ignore lint/style/noNonNullAssertion: <explanation>
                             ...prev!,
                             count: data.count,
                             files: data.files,
@@ -177,7 +233,7 @@ export default function Home() {
                     }
                     disabled={!playlistData?.path || seeding}
                   >
-                    {seeding && <Loader />}
+                    {seeding && <Cog className="mr-2 h-4 w-4 animate-spin" />}
                     Seed Data: Count MP3 Files
                   </Button>
                 </div>
@@ -229,41 +285,149 @@ export default function Home() {
         );
       case 3:
         return (
-          <div className="space-y-6 mx-6 my-2">
+          <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <Cog className="h-6 w-6 text-primary" />
-              <h2 className="text-3xl font-semibold">Optional Step 1</h2>
+              <h2 className="text-2xl font-semibold">Add Songs to Database</h2>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="optional-step-1"
-                checked={optionalStep1}
-                onCheckedChange={checked =>
-                  setOptionalStep1(checked as boolean)
-                }
-              />
-              <Label htmlFor="optional-step-1">Enable optional feature</Label>
-            </div>
+            {playlistData && playlistData.files.length > 0 ? (
+              <>
+                <div className="flex space-x-2">
+                  <Button
+                    className="w-full"
+                    variant="default"
+                    onClick={async () => {
+                      setDbProgress(0);
+                      for (let i = 0; i < playlistData.files.length; i++) {
+                        const fileName = playlistData.files[i];
+                        const filePath = `${playlistData.path}/${fileName}`;
+                        await insertSongToDatabase({
+                          name: fileName.replace('.mp3', ''),
+                          filePath: filePath,
+                          playlist: playlistData.path,
+                        });
+                        setDbProgress(Math.round(((i + 1) / playlistData.files.length) * 100));
+                      }
+                      await fetchSongs();
+                    }}
+                    disabled={seeding}
+                  >
+                    Add Songs to Database
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={fetchSongs}
+                    disabled={seeding}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                </div>
+                {dbProgress > 0 && (
+                  <div>
+                    <Progress value={dbProgress} className="w-full" />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {dbProgress}% Complete
+                    </p>
+                  </div>
+                )}
+                {dbProgress === 100 && (
+                  <Alert>
+                    <AlertDescription>
+                      Successfully added {playlistData.files.length} songs to the database!
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <ScrollArea className="h-[200px] w-full rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Song</TableHead>
+                        <TableHead>Artist</TableHead>
+                        <TableHead>Playlist</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {dbSongs.map((song, i) => (
+                        <TableRow key={i}>
+                          <TableCell className="font-medium">{song.name}</TableCell>
+                          <TableCell>{song.artist}</TableCell>
+                          <TableCell className="truncate max-w-[200px]">
+                            {song.playlist}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </>
+            ) : (
+              <Alert>
+                <AlertDescription>
+                  No playlist data available. Please select a directory with MP3 files first.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
         );
       case 4:
         return (
-          <div className="space-y-6 mx-6 my-2">
-            <div className="flex items-center space-x-3">
-              <Flag className="h-6 w-6 text-primary" />
-              <h2 className="text-3xl font-semibold">Optional Step 2</h2>
-            </div>
-            <div className="space-y-4">
-              <Label htmlFor="optional-step-2">Additional Information</Label>
-              <Input
-                id="optional-step-2"
-                type="text"
-                value={optionalStep2}
-                onChange={e => setOptionalStep2(e.target.value)}
-                placeholder="Enter additional information"
-              />
-            </div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-5 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 260, damping: 20 }}
+            >
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <Check className="w-8 h-8 text-green-600" />
+              </div>
+            </motion.div>
+            <motion.h2 
+              className="text-2xl font-bold"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              Setup Complete
+            </motion.h2>
+            <motion.p
+              className="text-lg text-muted-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              Congratulations, {name}! Your music library is now set up.
+            </motion.p>
+            <motion.div
+              className="flex justify-center space-x-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+            >
+              <Card className="w-24 h-24 flex flex-col items-center justify-center">
+                <Music className="w-7 h-7 text-primary mb-1" />
+                <p className="font-semibold">{playlistData?.count || 0}</p>
+                <p className="text-xs text-muted-foreground">Songs Added</p>
+              </Card>
+              <Card className="w-24 h-24 flex flex-col items-center justify-center">
+                <FolderOpen className="w-7 h-7 text-primary mb-1" />
+                <p className="font-semibold">1</p>
+                <p className="text-xs text-muted-foreground">Playlist Created</p>
+              </Card>
+            </motion.div>
+            <motion.p
+              className="text-muted-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.1 }}
+            >
+              Click &quot;Finish&quot; to start using the player.
+            </motion.p>
+          </motion.div>
         );
       default:
         return null;
@@ -335,7 +499,7 @@ export default function Home() {
               </motion.div>
             </CardContent>
 
-            <div className="px-8 pb-8">
+            <div className="px-8 pb-8 ">
               <div className="mt-10 flex justify-between">
                 <Button
                   variant="ghost"
@@ -368,6 +532,7 @@ export default function Home() {
           </Card>
         )}
       </motion.div>
+      {step === 4 && <Confetti />}
     </AuroraBackground>
   );
 }

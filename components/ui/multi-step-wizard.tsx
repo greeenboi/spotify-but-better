@@ -95,6 +95,7 @@ function CheckIcon(props: ComponentProps<'svg'>) {
       stroke="currentColor"
       strokeWidth={3}
     >
+      <title>Check icon</title>
       <motion.path
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
